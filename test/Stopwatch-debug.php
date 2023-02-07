@@ -57,8 +57,26 @@ $pathParts = [__DIR__, '..', 'vendor', 'autoload.php',];
 $path = implode(DIRECTORY_SEPARATOR, $pathParts);
 require_once($path);
 
+/* starting OP Cache warm up */
+$stopwatch = new SbWereWolf\Stopwatch\HRTimeStopwatch();
 echo 'Duration is ' .
-    (new SbWereWolf\Stopwatch\HRTimeStopwatch())->start()->stop()->getLastTime()->asNanoSeconds() .
+    $stopwatch->start()->stop()->getLastTime()->asNanoSeconds() .
+    ' ns' .
+    PHP_EOL;
+echo (new DateTimeImmutable())->format('s.u') .
+    ' Period duration: ' .
+    $stopwatch->getLastTime()->asNanoSeconds() .
+    ' ns' .
+    PHP_EOL;
+/* finish OP Cache warm up */
+
+/* Starting benchmark*/
+echo 'Duration is ' .
+    (new SbWereWolf\Stopwatch\HRTimeStopwatch())
+        ->start()
+        ->stop()
+        ->getLastTime()
+        ->asNanoSeconds() .
     ' ns' .
     PHP_EOL;
 
@@ -70,7 +88,7 @@ time_nanosleep(0, 100);
 $stopwatch->stop();
 
 echo (new DateTimeImmutable())->format('s.u') .
-    ' Period duration: ' .
+    ' Period 1 duration: ' .
     $stopwatch->getLastTime()->asNanoSeconds() .
     ' ns' .
     PHP_EOL;
@@ -82,13 +100,13 @@ time_nanosleep(0, 100);
 $stopwatch->stop();
 
 echo (new DateTimeImmutable())->format('s.u') .
-    ' Period duration: ' .
+    ' Period 2 duration: ' .
     $stopwatch->getLastTime()->asNanoSeconds() .
     ' ns' .
     PHP_EOL;
 
 echo (new DateTimeImmutable())->format('s.u') .
-    ' Periods summary duration: ' .
+    ' Periods 1 + 2 summary duration: ' .
     $stopwatch->getSummaryTime()->asNanoSeconds() .
     ' ns' .
     PHP_EOL;
@@ -98,12 +116,14 @@ echo (new DateTimeImmutable())->format('s.u') .
     $stopwatch->getWholeTime()->asNanoSeconds() .
     ' ns' .
     PHP_EOL;
-
+/* Finish benchmark*/
 
 $sw1 = (new SbWereWolf\Stopwatch\MicroTimeStopwatch());
 $sw2 = (new SbWereWolf\Stopwatch\HRTimeStopwatch());
+$handlers = [];
+//$handlers = ['micro' => $sw1, 'hi res' => $sw2];
 
-foreach (['micro' => $sw1, 'hi res' => $sw2] as $type => $sw) {
+foreach ($handlers as $type => $sw) {
     echo $type . PHP_EOL;
 
     echoLastTime($sw, ' Duration of LastTime at instanting is ');

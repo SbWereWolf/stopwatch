@@ -18,7 +18,7 @@ echo 'Duration is ' .
 ```
 
 ```bash
-Duration is 6800 ns
+Duration is 800 ns
 ```
 
 Stopwatch available with `hrtime()` and with `microtime()` engines.
@@ -32,7 +32,7 @@ Stopwatch available with `hrtime()` and with `microtime()` engines.
 ## Advanced usage
 
 ```php
-$stopwatch = new \SbWereWolf\Stopwatch\HRTimeStopwatch();
+$stopwatch = new SbWereWolf\Stopwatch\HRTimeStopwatch();
 echo (new DateTimeImmutable())->format('s.u') . PHP_EOL;
 
 $stopwatch->start();
@@ -40,7 +40,7 @@ time_nanosleep(0, 100);
 $stopwatch->stop();
 
 echo (new DateTimeImmutable())->format('s.u') .
-    ' Period duration: ' .
+    ' Period 1 duration: ' .
     $stopwatch->getLastTime()->asNanoSeconds() .
     ' ns' .
     PHP_EOL;
@@ -52,13 +52,13 @@ time_nanosleep(0, 100);
 $stopwatch->stop();
 
 echo (new DateTimeImmutable())->format('s.u') .
-    ' Period duration: ' .
+    ' Period 2 duration: ' .
     $stopwatch->getLastTime()->asNanoSeconds() .
     ' ns' .
     PHP_EOL;
 
 echo (new DateTimeImmutable())->format('s.u') .
-    ' Periods summary duration: ' .
+    ' Periods 1 + 2 summary duration: ' .
     $stopwatch->getSummaryTime()->asNanoSeconds() .
     ' ns' .
     PHP_EOL;
@@ -71,13 +71,11 @@ echo (new DateTimeImmutable())->format('s.u') .
 ```
 
 ```bash
-Duration is 6800 ns
-24.003953
-24.003993 Period duration: 20300 ns
-24.004022 Period duration: 6300 ns
-
-24.004031 Periods summary duration: 26600 ns
-24.004046 Whole process duration: 50900 ns
+02.380004
+02.380020 Period 1 duration: 12400 ns
+02.380032 Period 2 duration: 3600 ns
+02.380035 Periods 1 + 2 summary duration: 16000 ns
+02.380044 Whole process duration: 24000 ns
 ```
 
 ## Contacts
