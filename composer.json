@@ -1,6 +1,6 @@
 {
   "name": "sbwerewolf/stopwatch",
-  "description": "Primitive stopwatch with simple start and stop for measurement of periods and whole time",
+  "description": "Primitive stopwatch with simple start and stop for measurement of every time periods and whole time",
   "type": "libary",
   "license": "MIT",
   "authors": [
@@ -17,6 +17,7 @@
     }
   },
   "require": {
-    "sbwerewolf/json-serialize-trait": "^1.0"
+    "sbwerewolf/json-serialize-trait": "^1.0",
+    "ext-json": "*"
   }
 }

@@ -58,14 +58,23 @@ $path = implode(DIRECTORY_SEPARATOR, $pathParts);
 require_once($path);
 
 /* starting OP Cache warm up */
-$stopwatch = new SbWereWolf\Stopwatch\HRTimeStopwatch();
-echo 'Duration is ' .
+echo (new DateTimeImmutable())->format('s.u') . PHP_EOL;
+
+$stopwatch = new SbWereWolf\Stopwatch\MicroTimeStopwatch();
+echo 'MicroTime duration: ' .
     $stopwatch->start()->stop()->getLastTime()->asNanoSeconds() .
     ' ns' .
     PHP_EOL;
-echo (new DateTimeImmutable())->format('s.u') .
-    ' Period duration: ' .
-    $stopwatch->getLastTime()->asNanoSeconds() .
+
+$stopwatch = new SbWereWolf\Stopwatch\HRTimeStopwatch();
+echo 'HRTime duration: ' .
+    $stopwatch->start()->stop()->getLastTime()->asNanoSeconds() .
+    ' ns' .
+    PHP_EOL;
+
+$stopwatch = new SbWereWolf\Stopwatch\DateTimeStopwatch();
+echo 'DateTime duration: ' .
+    $stopwatch->start()->stop()->getLastTime()->asNanoSeconds() .
     ' ns' .
     PHP_EOL;
 /* finish OP Cache warm up */
@@ -87,11 +96,14 @@ $stopwatch->start();
 time_nanosleep(0, 100);
 $stopwatch->stop();
 
+$d1 = $stopwatch->getLastTime()->asNanoSeconds();
 echo (new DateTimeImmutable())->format('s.u') .
-    ' Period 1 duration: ' .
-    $stopwatch->getLastTime()->asNanoSeconds() .
-    ' ns' .
-    PHP_EOL;
+    ' Period 1 duration: ' . $d1 . ' ns' . PHP_EOL;
+
+assert(
+    $d1 > 100,
+    'Duration of period #1 is less then delay'
+);
 
 time_nanosleep(0, 100);
 
@@ -99,29 +111,39 @@ $stopwatch->start();
 time_nanosleep(0, 100);
 $stopwatch->stop();
 
+$d2 = $stopwatch->getLastTime()->asNanoSeconds();
 echo (new DateTimeImmutable())->format('s.u') .
-    ' Period 2 duration: ' .
-    $stopwatch->getLastTime()->asNanoSeconds() .
-    ' ns' .
-    PHP_EOL;
+    ' Period 2 duration: ' . $d2 . ' ns' . PHP_EOL;
 
-echo (new DateTimeImmutable())->format('s.u') .
-    ' Periods 1 + 2 summary duration: ' .
-    $stopwatch->getSummaryTime()->asNanoSeconds() .
-    ' ns' .
-    PHP_EOL;
+assert(
+    $d2 > 100,
+    'Duration of period #2 is less then delay'
+);
 
+$total = $stopwatch->getSummaryTime()->asNanoSeconds();
 echo (new DateTimeImmutable())->format('s.u') .
-    ' Whole process duration: ' .
-    $stopwatch->getWholeTime()->asNanoSeconds() .
-    ' ns' .
-    PHP_EOL;
+    ' Periods 1 + 2 summary duration: ' . $total . ' ns' . PHP_EOL;
+
+assert(
+    $total === $d1 + $d2,
+    'summa of period durations not equal to summary'
+);
+
+$whole = $stopwatch->getWholeTime()->asNanoSeconds();
+echo (new DateTimeImmutable())->format('s.u') .
+    ' Whole process duration: ' . $whole . ' ns' . PHP_EOL;
+
+assert(
+    $whole > $total,
+    'Duration whole is less then periods summary'
+);
 /* Finish benchmark*/
 
 $sw1 = (new SbWereWolf\Stopwatch\MicroTimeStopwatch());
 $sw2 = (new SbWereWolf\Stopwatch\HRTimeStopwatch());
-$handlers = [];
-//$handlers = ['micro' => $sw1, 'hi res' => $sw2];
+$sw3 = (new SbWereWolf\Stopwatch\DateTimeStopwatch());
+/*$handlers = [];*/
+$handlers = ['MICRO' => $sw1, 'HI RES' => $sw2, 'DATETIME' => $sw3];
 
 foreach ($handlers as $type => $sw) {
     echo $type . PHP_EOL;

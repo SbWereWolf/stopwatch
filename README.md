@@ -18,16 +18,23 @@ echo 'Duration is ' .
 ```
 
 ```bash
-Duration is 800 ns
+Duration is 300 ns
 ```
 
-Stopwatch available with `hrtime()` and with `microtime()` engines.
+Stopwatch available with different engines:
+
+- `hrtime()`
+- `microtime()`
+- `DateTimeImmutable`
+
+`\SbWereWolf\Stopwatch\HRTimeStopwatch` implements
+`hrtime()` engine.
 
 `\SbWereWolf\Stopwatch\MicroTimeStopwatch` implements
 `microtime()` engine.
 
-`\SbWereWolf\Stopwatch\HRTimeStopwatch` implements
-`hrtime()` engine.
+`\SbWereWolf\Stopwatch\DateTimeStopwatch` implements
+`DateTimeImmutable` engine.
 
 ## Advanced usage
 

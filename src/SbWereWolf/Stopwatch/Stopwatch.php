@@ -11,43 +11,39 @@ abstract class Stopwatch implements IStopwatch, JsonSerializable
 {
     use JsonSerializeTrait;
 
-    /** @var int time moment when measurement was started first time */
-    private int $firstStaredAt = 0;
-    /** @var int time moment when measurement was started */
-    private int $staredAt = 0;
-    /** @var int time moment when measurement was ended */
-    private int $endedAt = 0;
+    /** @var mixed time moment when measurement was started first time */
+    private $firstStaredAt;
+    /** @var mixed time moment when measurement was started */
+    private $staredAt;
+    /** @var mixed time moment when measurement was ended */
+    protected $lastEndedAt;
     /** @var int summary time of all time periods has measured */
     private int $summary = 0;
 
     /** @var bool state of measurement, is running or was stopped */
     private bool $isRunning = false;
+    /** @var bool indicates is stopwatch was started */
+    private bool $isStarted = false;
 
     /* @inheritdoc */
     public function start(): IStopwatch
     {
-        $moment = $this->getCurrentMeasurementAsNanoseconds();
-        if ($this->staredAt === 0) {
-            $this->firstStaredAt = $moment;
+        if (!$this->isStarted) {
+            $this->isStarted = true;
+            $this->firstStaredAt = $this->getReadings();
         }
-        $this->staredAt = $moment;
+        $this->staredAt = $this->getReadings();
 
         $this->isRunning = true;
 
         return $this;
     }
 
-    /** Get current time moment as nanoseconds
-     * @return int
-     */
-    abstract protected function
-    getCurrentMeasurementAsNanoseconds(): int;
-
     /* @inheritdoc */
     public function stop(): IStopwatch
     {
         if ($this->isRunning) {
-            $this->endedAt = $this->getCurrentMeasurementAsNanoseconds();
+            $this->lastEndedAt = $this->getReadings();
 
             $this->isRunning = false;
             $this->summary += $this->calculateLastPeriodDuration();
@@ -61,34 +57,24 @@ abstract class Stopwatch implements IStopwatch, JsonSerializable
      */
     private function calculateLastPeriodDuration(): int
     {
-        $finish = $this->getFinishMoment();
-        $duration = $finish - $this->staredAt;
+        if ($this->isRunning) {
+            $duration = $this->calcDiffNowWith($this->staredAt);
+        } else {
+            $duration = $this->calcDiffLastEndWith($this->staredAt);
+        }
 
         return $duration;
-    }
-
-    /**
-     * @return int
-     */
-    private function getFinishMoment(): int
-    {
-        if ($this->isRunning) {
-            $moment = $this->getCurrentMeasurementAsNanoseconds();
-        } else {
-            $moment = $this->endedAt;
-        }
-        return $moment;
     }
 
     /* @inheritdoc */
     public function reset(): IStopwatch
     {
-        $moment = $this->getCurrentMeasurementAsNanoseconds();
         if ($this->isRunning) {
-            $this->firstStaredAt = $moment;
-            $this->staredAt = $moment;
+            $readings = $this->getReadings();
+            $this->firstStaredAt = $readings;
+            $this->staredAt = $readings;
         } else {
-            $this->staredAt = 0;
+            $this->isStarted = false;
         }
 
         $this->summary = 0;
@@ -100,7 +86,11 @@ abstract class Stopwatch implements IStopwatch, JsonSerializable
     /* @inheritdoc */
     public function getLastTime(): ITimerReadings
     {
-        $duration = $this->calculateLastPeriodDuration();
+        $duration = 0;
+        if ($this->isStarted) {
+            $duration = $this->calculateLastPeriodDuration();
+        }
+
         $measurement = new TimerReadings($duration);
 
         return $measurement;
@@ -117,8 +107,13 @@ abstract class Stopwatch implements IStopwatch, JsonSerializable
     /* @inheritdoc */
     public function getWholeTime(): ITimerReadings
     {
-        $finish = $this->getFinishMoment();
-        $duration = $finish - $this->firstStaredAt;
+        $duration = 0;
+        if ($this->isStarted && $this->isRunning) {
+            $duration = $this->calcDiffNowWith($this->firstStaredAt);
+        }
+        if ($this->isStarted && !$this->isRunning) {
+            $duration = $this->calcDiffLastEndWith($this->firstStaredAt);
+        }
 
         $measurement = new TimerReadings($duration);
 
@@ -130,4 +125,20 @@ abstract class Stopwatch implements IStopwatch, JsonSerializable
     {
         return $this->isRunning;
     }
+
+    /** Get readings of stopwatch driver */
+    abstract protected function getReadings();
+
+    /** Get time difference between current time and given $moment
+     * @param int $moment
+     * @return int
+     */
+    abstract protected function calcDiffNowWith($moment): int;
+
+    /** Get time difference between
+     * last period end time and given $moment
+     * @param int $moment
+     * @return int
+     */
+    abstract protected function calcDiffLastEndWith($moment): int;
 }
