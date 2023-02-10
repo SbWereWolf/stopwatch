@@ -45,14 +45,17 @@ class MicroTimeStopwatch extends Stopwatch
 
     /**
      * @param $readings
-     * @return float|int
+     * @return int
      */
-    private static function readingsToNanoseconds($readings)
+    private static function readingsToNanoseconds($readings): int
     {
         list($mcs, $s) = explode(' ', $readings);
         $moment =
-            ((float)$s + (float)$mcs) * ITimerReadings::TO_SECONDS;
+            (
+                ((int)$s) * ITimerReadings::TO_SECONDS +
+                (int)(((float)$mcs) * ITimerReadings::TO_SECONDS)
+            );
 
-        return (int)$moment;
+        return $moment;
     }
 }

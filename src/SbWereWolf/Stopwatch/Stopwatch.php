@@ -28,11 +28,12 @@ abstract class Stopwatch implements IStopwatch, JsonSerializable
     /* @inheritdoc */
     public function start(): IStopwatch
     {
+        $readings = $this->getReadings();
         if (!$this->isStarted) {
             $this->isStarted = true;
-            $this->firstStaredAt = $this->getReadings();
+            $this->firstStaredAt = $readings;
         }
-        $this->staredAt = $this->getReadings();
+        $this->staredAt = $readings;
 
         $this->isRunning = true;
 
