@@ -21,8 +21,8 @@ class MicroTimeStopwatch extends Stopwatch
      */
     protected function calcDiffNowWith($moment): int
     {
-        $start = $this->readingsToNanoseconds($moment);
-        $now = $this->readingsToNanoseconds($this->getReadings());
+        $start = static::readingsToNanoseconds($moment);
+        $now = static::readingsToNanoseconds($this->getReadings());
 
         $duration = $now - $start;
 
@@ -35,8 +35,8 @@ class MicroTimeStopwatch extends Stopwatch
      */
     protected function calcDiffLastEndWith($moment): int
     {
-        $start = $this->readingsToNanoseconds($moment);
-        $end = $this->readingsToNanoseconds($this->lastEndedAt);
+        $start = static::readingsToNanoseconds($moment);
+        $end = static::readingsToNanoseconds($this->lastEndedAt);
 
         $duration = $end - $start;
 
@@ -47,7 +47,7 @@ class MicroTimeStopwatch extends Stopwatch
      * @param $readings
      * @return float|int
      */
-    private function readingsToNanoseconds($readings)
+    private static function readingsToNanoseconds($readings)
     {
         list($mcs, $s) = explode(' ', $readings);
         $moment =

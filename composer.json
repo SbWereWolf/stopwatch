@@ -1,6 +1,6 @@
 {
   "name": "sbwerewolf/stopwatch",
-  "description": "Primitive stopwatch with simple start and stop for measurement of every time periods and whole time",
+  "description": "Primitive stopwatch with simple start and stop for measurement of every single time periods and whole time",
   "type": "libary",
   "license": "MIT",
   "authors": [

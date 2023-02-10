@@ -21,7 +21,7 @@ class DateTimeStopwatch extends Stopwatch
         /** @var DateTimeImmutable $readings */
         $readings = $this->getReadings();
         $delta = $readings->diff($moment);
-        $duration = $this->toNanoSeconds($delta);
+        $duration = static::toNanoSeconds($delta);
 
         return $duration;
     }
@@ -30,24 +30,6 @@ class DateTimeStopwatch extends Stopwatch
     protected function getReadings()
     {
         return new DateTimeImmutable();
-    }
-
-    /**
-     * @param DateInterval $delta
-     * @return float|int
-     */
-    private function toNanoSeconds(DateInterval $delta)
-    {
-        $duration =
-            ($delta->s + $delta->f) * ITimerReadings::TO_SECONDS +
-            $delta->i * ITimerReadings::TO_SECONDS * 60 +
-            $delta->h * ITimerReadings::TO_SECONDS * 60 * 60;
-        if ($delta->days) {
-            $duration +=
-                $delta->days * ITimerReadings::TO_SECONDS * 60 * 60 * 24;
-        }
-
-        return (int)$duration;
     }
 
     /**
@@ -60,5 +42,23 @@ class DateTimeStopwatch extends Stopwatch
         $duration = $this->toNanoSeconds($delta);
 
         return $duration;
+    }
+
+    /**
+     * @param DateInterval $delta
+     * @return float|int
+     */
+    private static function toNanoSeconds(DateInterval $delta)
+    {
+        $duration =
+            ($delta->s + $delta->f) * ITimerReadings::TO_SECONDS +
+            $delta->i * ITimerReadings::TO_SECONDS * 60 +
+            $delta->h * ITimerReadings::TO_SECONDS * 60 * 60;
+        if ($delta->days) {
+            $duration +=
+                $delta->days * ITimerReadings::TO_SECONDS * 60 * 60 * 24;
+        }
+
+        return (int)$duration;
     }
 }
