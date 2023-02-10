@@ -64,12 +64,14 @@ echo (new DateTimeImmutable())->format('s.u') .
     ' ns' .
     PHP_EOL;
 
+/* Summa of all time periods */
 echo (new DateTimeImmutable())->format('s.u') .
     ' Periods 1 + 2 summary duration: ' .
     $stopwatch->getSummaryTime()->asNanoSeconds() .
     ' ns' .
     PHP_EOL;
 
+/* Overall time */
 echo (new DateTimeImmutable())->format('s.u') .
     ' Whole process duration: ' .
     $stopwatch->getWholeTime()->asNanoSeconds() .
@@ -83,6 +85,63 @@ echo (new DateTimeImmutable())->format('s.u') .
 02.380032 Period 2 duration: 3600 ns
 02.380035 Periods 1 + 2 summary duration: 16000 ns
 02.380044 Whole process duration: 24000 ns
+```
+
+## Using a stopwatch to benchmark any process
+
+```php
+$stopwatch = new SbWereWolf\Stopwatch\HRTimeStopwatch();
+$benchmark = new SbWereWolf\Stopwatch\Benchmark($stopwatch);
+
+$delay = 100;
+echo "Variable value before step z callback `$delay`" . PHP_EOL;
+/* Variable value before step z callback `100` */
+$benchmark->step('z', function () use ($delay) {
+    time_nanosleep(0, $delay);
+    $delay++;
+});
+echo "after step z callback `$delay`" . PHP_EOL;
+/* after step z callback `100` */
+/* Variable does not change its value */
+
+$benchmark->step('x', function () use (&$delay) {
+    time_nanosleep(0, $delay);
+    $delay += 999;
+});
+echo "after step x callback `$delay`" . PHP_EOL;
+/* after step x callback `1099` */
+/* Variable does change its value */
+
+$benchmark->step('c', function () use (&$delay) {
+    $delay -= 999;
+    time_nanosleep(0, $delay);
+});
+echo "after step c callback `$delay`" . PHP_EOL;
+/* after step c callback `100` */
+/* Variable does change its value */
+
+echo "Benchmark steps measurement is:" . PHP_EOL;
+$i=0;
+foreach ($benchmark->report() as $desc => $val) {
+    /** @var SbWereWolf\Stopwatch\ITimerReadings $val */
+    echo "$desc => {$val->asNanoSeconds()} ns" . PHP_EOL;
+    $i++;
+}
+
+$totalNanoseconds = $benchmark->total()->asNanoSeconds();
+echo "Total is $totalNanoseconds ns";
+```
+
+```bash
+variable value before step z `100`
+after step z `100`
+after step x `1099`
+after step c `100`
+Benchmark steps measurement is:
+z => 15800 ns
+x => 7600 ns
+c => 4100 ns
+Total is 27500 ns
 ```
 
 ## Contacts
